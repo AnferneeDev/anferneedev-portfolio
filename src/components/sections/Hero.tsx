@@ -42,17 +42,20 @@ const Hero = () => {
   const shouldReduceMotion = useReducedMotion();
 
   return (
-    <section className="min-h-screen flex flex-col items-center justify-center px-6 pt-24 pb-16 relative overflow-hidden">
-      <div className="absolute top-1/4 left-1/4 size-96 bg-primary/5 rounded-full blur-3xl -z-10" />
-
+    <section
+      className="min-h-screen flex flex-col items-center justify-center px-6 pt-24 pb-16 relative overflow-hidden bg-[#fcfcfc] bg-cover bg-center bg-no-repeat"
+      style={{
+        backgroundImage: "url('/bg.png')",
+        backgroundPosition: "calc(50% + 100px) center",
+      }}
+    >
       <m.div 
         variants={container} 
         initial="hidden" 
         animate="show" 
-        className="max-w-4xl w-full space-y-8"
+        className="max-w-4xl w-full space-y-8 relative z-10 md:-translate-x-[200px]"
       >
-        <div className="grid md:grid-cols-[1fr_auto] gap-8 md:gap-12 items-start md:items-center">
-          <div className="space-y-6 order-2 md:order-1">
+        <div className="space-y-6">
             <m.div variants={item(shouldReduceMotion)} className="space-y-3">
               <h1 className="text-5xl md:text-7xl font-serif font-semibold tracking-tighter leading-[1.1] text-foreground">
                 {t("title1")}<br />
@@ -144,31 +147,13 @@ const Hero = () => {
                 </m.div>
               ))}
             </m.div>
-          </div>
-
-          <m.div variants={item(shouldReduceMotion)} className="order-1 md:order-2 flex justify-start md:justify-end">
-            <div className="relative group">
-              <m.div 
-                whileHover={{ rotate: 2, scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="relative z-10"
-              >
-                <img 
-                  src="/anfernee.jpg" 
-                  alt="Anfernee Pichardo" 
-                  className="size-36 md:size-48 rounded-2xl object-cover border border-border shadow-2xl grayscale group-hover:grayscale-0 transition-all duration-700" 
-                />
-              </m.div>
-              <div className="absolute inset-0 bg-primary/10 rounded-2xl translate-x-4 translate-y-4 -z-10 transition-transform duration-500 group-hover:translate-x-6 group-hover:translate-y-6" />
-            </div>
-          </m.div>
         </div>
 
         <m.div variants={item(shouldReduceMotion)} className="w-full">
           <GitHubCalendar username="AnferneeDev" />
         </m.div>
 
-        <m.div variants={item(shouldReduceMotion)} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-6 border-t border-border/40">
+        <m.div variants={item(shouldReduceMotion)} className="flex flex-col sm:flex-row sm:items-center justify-start gap-4 pt-6 border-t border-border/40">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Cloud className="w-4 h-4 text-primary" />
             <span>Working towards <strong>AWS Certified Developer Associate (DVA-C02)</strong></span>
@@ -181,7 +166,7 @@ const Hero = () => {
         initial={{ opacity: 0 }} 
         animate={{ opacity: 1 }} 
         transition={{ delay: 1.5, duration: 1 }}
-        className="pt-10 md:pt-14 pb-2 flex flex-col items-center gap-2 text-sm text-muted-foreground"
+        className="pt-10 md:pt-14 pb-2 flex flex-col items-center gap-2 text-sm text-muted-foreground md:-translate-x-[200px]"
       >
         <span className="font-mono text-xs uppercase tracking-widest">{t("scroll")}</span>
         <m.div 
