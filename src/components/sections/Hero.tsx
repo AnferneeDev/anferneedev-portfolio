@@ -43,10 +43,7 @@ const Hero = () => {
 
   return (
     <section
-      className="min-h-screen flex flex-col items-center justify-center px-6 pt-24 md:pt-32 pb-16 relative overflow-hidden bg-[#fcfcfc] bg-cover bg-no-repeat bg-[position:65%_center] md:bg-[position:calc(50%+100px)_center]"
-      style={{
-        backgroundImage: "url('/bg.png')",
-      }}
+      className="min-h-screen flex flex-col items-center justify-center px-6 pt-24 md:pt-32 pb-16 relative overflow-hidden bg-[#fcfcfc] bg-no-repeat bg-none md:bg-[url(/bg.png)] md:bg-cover md:bg-[position:calc(50%+100px)_center]"
     >
       <div className="w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between">
         <m.div 
