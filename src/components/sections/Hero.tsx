@@ -43,130 +43,132 @@ const Hero = () => {
 
   return (
     <section
-      className="min-h-screen flex flex-col items-center justify-center px-6 pt-24 pb-16 relative overflow-hidden bg-[#fcfcfc] bg-cover bg-center bg-no-repeat"
+      className="min-h-screen flex flex-col items-center justify-center px-6 pt-24 md:pt-32 pb-16 relative overflow-hidden bg-[#fcfcfc] bg-cover bg-no-repeat bg-[position:65%_center] md:bg-[position:calc(50%+100px)_center]"
       style={{
         backgroundImage: "url('/bg.png')",
-        backgroundPosition: "calc(50% + 100px) center",
       }}
     >
-      <m.div 
-        variants={container} 
-        initial="hidden" 
-        animate="show" 
-        className="max-w-4xl w-full space-y-8 relative z-10 md:-translate-x-[200px]"
-      >
-        <div className="space-y-6">
-            <m.div variants={item(shouldReduceMotion)} className="space-y-3">
-              <h1 className="text-5xl md:text-7xl font-serif font-semibold tracking-tighter leading-[1.1] text-foreground">
-                {t("title1")}<br />
-                <span className="text-muted-foreground">{t("title2")}</span>
-              </h1>
-              <p className="text-xl md:text-2xl font-light tracking-tight text-foreground">
-                {t("role")}
-              </p>
-            </m.div>
+      <div className="w-full max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between">
+        <m.div 
+          variants={container} 
+          initial="hidden" 
+          animate="show" 
+          className="max-w-2xl w-full space-y-8 relative z-10"
+        >
+          <div className="space-y-6">
+              <m.div variants={item(shouldReduceMotion)} className="space-y-3">
+                <h1 className="text-5xl md:text-7xl font-serif font-semibold tracking-tighter leading-[1.1] text-foreground">
+                  {t("title1")}<br />
+                  <span className="text-muted-foreground">{t("title2")}</span>
+                </h1>
+                <p className="text-xl md:text-2xl font-light tracking-tight text-foreground">
+                  {t("role")}
+                </p>
+              </m.div>
 
-            <m.div variants={item(shouldReduceMotion)}>
-              <p className="text-base md:text-lg text-muted-foreground max-w-xl leading-relaxed font-light">
-                {t("description")}
-              </p>
-            </m.div>
+              <m.div variants={item(shouldReduceMotion)}>
+                <p className="text-base md:text-lg text-muted-foreground max-w-xl leading-relaxed font-light">
+                  {t("description")}
+                </p>
+              </m.div>
 
-            <m.div variants={item(shouldReduceMotion)}>
-              <div className="relative overflow-hidden inline-flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-2.5 px-3.5 py-2 sm:py-1.5 rounded-xl sm:rounded-full bg-card/60 border border-border/50 backdrop-blur-sm text-xs sm:text-sm text-muted-foreground shadow-sm leading-normal">
-                {/* Light reflection effect sweeping from left to right (happens first in cycle) */}
-                <m.div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 select-none overflow-hidden rounded-[inherit]"
-                >
+              <m.div variants={item(shouldReduceMotion)}>
+                <div className="relative overflow-hidden inline-flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-2.5 px-3.5 py-2 sm:py-1.5 rounded-xl sm:rounded-full bg-card/60 border border-border/50 backdrop-blur-sm text-xs sm:text-sm text-muted-foreground shadow-sm leading-normal">
+                  {/* Light reflection effect sweeping from left to right (happens first in cycle) */}
                   <m.div
-                    initial={{ x: "-150%" }}
-                    animate={
-                      shouldReduceMotion
-                        ? { x: "-150%" }
-                        : { x: ["-150%", "250%", "250%"] }
-                    }
-                    transition={{
-                      duration: 5,
-                      repeat: Infinity,
-                      times: [0, 0.24, 1],
-                      ease: [0.4, 0, 0.2, 1],
-                    }}
-                    className="absolute inset-y-0 left-0 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-foreground/10 dark:via-white/20 to-transparent"
-                  />
-                </m.div>
-
-                <GraduationCap className="size-4 text-primary shrink-0 relative z-10" />
-                <span className="font-medium text-foreground relative z-10">{t("education.degree")}</span>
-                <span className="hidden sm:inline text-muted-foreground/40 relative z-10">•</span>
-                <span className="relative z-10">{t("education.school")}</span>
-                <span className="hidden sm:inline text-muted-foreground/40 relative z-10">•</span>
-                <span className="text-primary font-medium relative z-10">{t("education.graduation")}</span>
-              </div>
-            </m.div>
-
-            <m.div variants={item(shouldReduceMotion)} className="flex gap-4 items-center pt-1">
-              {socialLinks.map((social, index) => (
-                <m.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }} key={social.label}>
-                  <Button 
-                    variant="outline" 
-                    size="icon" 
-                    className="relative overflow-hidden size-12 rounded-full border-border/50 bg-card/60 backdrop-blur-sm shadow-sm hover:border-primary hover:bg-primary/5 hover:text-primary transition-all duration-300" 
-                    asChild
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 select-none overflow-hidden rounded-[inherit]"
                   >
-                    <a href={social.href} target="_blank" rel="noopener noreferrer" aria-label={social.label}>
-                      {/* Light reflection effect sweeping from left to right (triggers sequentially after BS pill completes) */}
-                      <m.div
-                        aria-hidden="true"
-                        className="pointer-events-none absolute inset-0 select-none overflow-hidden rounded-full"
-                      >
+                    <m.div
+                      initial={{ x: "-150%" }}
+                      animate={
+                        shouldReduceMotion
+                          ? { x: "-150%" }
+                          : { x: ["-150%", "250%", "250%"] }
+                      }
+                      transition={{
+                        duration: 5,
+                        repeat: Infinity,
+                        times: [0, 0.24, 1],
+                        ease: [0.4, 0, 0.2, 1],
+                      }}
+                      className="absolute inset-y-0 left-0 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-foreground/10 dark:via-white/20 to-transparent"
+                    />
+                  </m.div>
+
+                  <GraduationCap className="size-4 text-primary shrink-0 relative z-10" />
+                  <span className="font-medium text-foreground relative z-10">{t("education.degree")}</span>
+                  <span className="hidden sm:inline text-muted-foreground/40 relative z-10">•</span>
+                  <span className="relative z-10">{t("education.school")}</span>
+                  <span className="hidden sm:inline text-muted-foreground/40 relative z-10">•</span>
+                  <span className="text-primary font-medium relative z-10">{t("education.graduation")}</span>
+                </div>
+              </m.div>
+
+              <m.div variants={item(shouldReduceMotion)} className="flex gap-4 items-center pt-1">
+                {socialLinks.map((social, index) => (
+                  <m.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }} key={social.label}>
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      className="relative overflow-hidden size-12 rounded-full border-border/50 bg-card/60 backdrop-blur-sm shadow-sm hover:border-primary hover:bg-primary/5 hover:text-primary transition-all duration-300" 
+                      asChild
+                    >
+                      <a href={social.href} target="_blank" rel="noopener noreferrer" aria-label={social.label}>
+                        {/* Light reflection effect sweeping from left to right (triggers sequentially after BS pill completes) */}
                         <m.div
-                          initial={{ x: "-150%" }}
-                          animate={
-                            shouldReduceMotion
-                              ? { x: "-150%" }
-                              : { x: ["-150%", "-150%", "250%", "250%"] }
-                          }
-                          transition={{
-                            duration: 5,
-                            repeat: Infinity,
-                            times: [
-                              0,
-                              (1.2 + index * 0.2) / 5,
-                              (1.8 + index * 0.2) / 5,
-                              1,
-                            ],
-                            ease: [0.4, 0, 0.2, 1],
-                          }}
-                          className="absolute inset-y-0 left-0 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-foreground/10 dark:via-white/20 to-transparent"
-                        />
-                      </m.div>
-                      <social.icon className="size-5 relative z-10" />
-                    </a>
-                  </Button>
-                </m.div>
-              ))}
-            </m.div>
-        </div>
-
-        <m.div variants={item(shouldReduceMotion)} className="w-full">
-          <GitHubCalendar username="AnferneeDev" />
-        </m.div>
-
-        <m.div variants={item(shouldReduceMotion)} className="flex flex-col sm:flex-row sm:items-center justify-start gap-4 pt-6 border-t border-border/40">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Cloud className="w-4 h-4 text-primary" />
-            <span>Working towards <strong>AWS Certified Developer Associate (DVA-C02)</strong></span>
+                          aria-hidden="true"
+                          className="pointer-events-none absolute inset-0 select-none overflow-hidden rounded-full"
+                        >
+                          <m.div
+                            initial={{ x: "-150%" }}
+                            animate={
+                              shouldReduceMotion
+                                ? { x: "-150%" }
+                                : { x: ["-150%", "-150%", "250%", "250%"] }
+                            }
+                            transition={{
+                              duration: 5,
+                              repeat: Infinity,
+                              times: [
+                                0,
+                                (1.2 + index * 0.2) / 5,
+                                (1.8 + index * 0.2) / 5,
+                                1,
+                              ],
+                              ease: [0.4, 0, 0.2, 1],
+                            }}
+                            className="absolute inset-y-0 left-0 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-foreground/10 dark:via-white/20 to-transparent"
+                          />
+                        </m.div>
+                        <social.icon className="size-5 relative z-10" />
+                      </a>
+                    </Button>
+                  </m.div>
+                ))}
+              </m.div>
           </div>
-          <VisitorCounter />
+
+          <m.div variants={item(shouldReduceMotion)} className="w-full">
+            <GitHubCalendar username="AnferneeDev" />
+          </m.div>
+
+          <m.div variants={item(shouldReduceMotion)} className="flex flex-col sm:flex-row sm:items-center justify-start gap-4 pt-6 border-t border-border/40">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Cloud className="w-4 h-4 text-primary" />
+              <span>Working towards <strong>AWS Certified Developer Associate (DVA-C02)</strong></span>
+            </div>
+            <VisitorCounter />
+          </m.div>
         </m.div>
-      </m.div>
+        <div className="hidden lg:block lg:w-1/2"></div>
+      </div>
 
       <m.div 
         initial={{ opacity: 0 }} 
         animate={{ opacity: 1 }} 
         transition={{ delay: 1.5, duration: 1 }}
-        className="pt-10 md:pt-14 pb-2 flex flex-col items-center gap-2 text-sm text-muted-foreground md:-translate-x-[200px]"
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-sm text-muted-foreground"
       >
         <span className="font-mono text-xs uppercase tracking-widest">{t("scroll")}</span>
         <m.div 
