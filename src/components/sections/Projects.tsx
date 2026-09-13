@@ -6,6 +6,7 @@ import { Code2, Database, Globe, Github, ExternalLink, Download, Bot, Workflow }
 import { m, useInView, useReducedMotion } from "framer-motion";
 import { useRef } from "react";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 
 import { LucideIcon } from "lucide-react";
 
@@ -51,9 +52,11 @@ const ProjectCard = ({ project, index }: { project: Project; index: number }) =>
           transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
           className="w-full h-full"
         >
-          <img 
+          <Image
             src={project.imageUrl} 
             alt={project.title} 
+            fill
+            sizes="(max-width: 768px) 100vw, 50vw"
             className={`w-full h-full object-cover transition-all duration-700 ease-out ${
               isInView 
                 ? 'grayscale-0 contrast-100 opacity-100' 

@@ -231,6 +231,8 @@ export default function GitHubCalendar({ username = 'AnferneeDev' }: { username?
                       return (
                         <div
                           key={day.date}
+                          role="img"
+                          aria-label={`${day.count} contribution${day.count === 1 ? '' : 's'} on ${day.date}`}
                           onMouseEnter={(e) => {
                             const rect = e.currentTarget.getBoundingClientRect();
                             const parentRect = containerRef.current?.getBoundingClientRect() || { left: 0, top: 0 };

@@ -42,6 +42,7 @@ export async function generateMetadata({
   const description = descriptions[locale] ?? descriptions.en;
   const ogLocale = locale === 'es' ? 'es_ES' : 'en_US';
   const otherLocale = locale === 'es' ? 'en_US' : 'es_ES';
+  const localizedUrl = `${baseUrl}/${locale}`;
 
   return {
     title,
@@ -49,7 +50,7 @@ export async function generateMetadata({
     openGraph: {
       title,
       description,
-      url: baseUrl,
+      url: localizedUrl,
       siteName: 'Anfernee Pichardo',
       images: [
         {
@@ -60,6 +61,7 @@ export async function generateMetadata({
         },
       ],
       locale: ogLocale,
+      alternateLocale: [otherLocale],
       type: 'website',
     },
     twitter: {
@@ -69,7 +71,7 @@ export async function generateMetadata({
       images: [`${baseUrl}/anfernee.jpg`],
     },
     alternates: {
-      canonical: baseUrl,
+      canonical: localizedUrl,
       languages: {
         'en': `${baseUrl}/en`,
         'es': `${baseUrl}/es`,
