@@ -1,6 +1,7 @@
 import Hero from "@/components/sections/Hero";
 import Projects from "@/components/sections/Projects";
 import Experience from "@/components/sections/Experience";
+import TechStack from "@/components/sections/TechStack";
 import {setRequestLocale} from 'next-intl/server';
 
 export default async function Home({
@@ -15,6 +16,7 @@ export default async function Home({
   return (
     <main className="bg-background">
       <Hero />
+      <TechStack />
       <Experience />
       <Projects />
     </main>

@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#fafaff">
+<title>Isometric Technology Stack — HTML / CSS / JavaScript</title>
+<style>
+  :root { color-scheme:light; --ink:#18204f; --purple:#6255df; --mint:#74f0a7; --paper:#fcfcff; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; min-height:100%; }
+  body { background:#fafaff; font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; overflow-x:hidden; }
+  .viewport { width:100%; min-height:min(100svh,850px); display:grid; place-items:center; background:#fcfcff; overflow:hidden; position:relative; }
+  .stage-shell { position:relative; width:100%; aspect-ratio:1486/781; min-width:420px; overflow:hidden; background:#fcfcff; }
+  .stage { position:absolute; left:50%; top:50%; width:1486px;height:781px; transform:translate(-50%,-50%) scale(var(--stage-scale,1)); transform-origin:center; isolation:isolate;
+    background-color:#fcfcff;
+    background-image:repeating-linear-gradient(30deg,transparent 0 56px,rgba(32,44,123,.049) 56px 57px,transparent 57px 112px), repeating-linear-gradient(-30deg,transparent 0 56px,rgba(32,44,123,.045) 56px 57px,transparent 57px 112px);
+  }
+  .stage:after {content:"";position:absolute;inset:0;pointer-events:none;z-index:80;background:linear-gradient(90deg,#fcfcff 0%,transparent 17%,transparent 84%,#fcfcff 100%);opacity:.18;}
+  .shapes,.stacks {position:absolute;inset:0;}
+  .shapes {pointer-events:none;}
+  /* Each dot is its own HTML element: no stroked or dashed lines. Every route
+     follows one of the two projected ground-plane axes, with clean turns. */
+  .flow-dot {position:absolute;left:0;top:0;width:3px;height:3px;border-radius:50%;background:#7b85ad;opacity:.77;z-index:1;will-change:transform;}
+  .flow-dot.bright {width:4px;height:4px;background:#6754dd;opacity:.91;}
+  .flow-dot.branch {background:#7f88b7;opacity:.8;}
+  .parcel {position:absolute;left:0;top:0;width:17px;height:18px;z-index:3;will-change:transform;}
+  .parcel .facet {position:absolute;inset:0;clip-path:var(--poly);background:#1b2054;}
+  .parcel .facet:after {content:"";position:absolute;inset:0;clip-path:var(--inside);background:var(--color);}
+  .node {position:absolute;width:9px;height:9px;background:#6a58e8;z-index:1;}
+  .node.dark {background:#1e2456;}
+  .cube {position:absolute;width:46px;height:40px;z-index:0;}
+  .cube .facet {position:absolute;background:var(--ink);clip-path:var(--poly);inset:0;}
+  .cube .facet:after {content:"";position:absolute;inset:0;background:#fcfcff;clip-path:var(--inside);}
+  .cube .side:after{background:#ebeefe;}
+  .cube .front:after{background:#f7f7ff;}
+  .tier {position:absolute;inset:0;pointer-events:none;}
+  .face {position:absolute;inset:0;background:var(--ink);clip-path:var(--outer);pointer-events:none;}
+  .face:after {content:"";position:absolute;inset:0;background:var(--face-color);clip-path:var(--inner);}
+  .tier-title {position:absolute;white-space:nowrap;color:#18204f;font-size:15px;letter-spacing:3.4px;font-weight:750;transform-origin:left center;transform:rotate(-30deg);text-transform:uppercase;z-index:5;}
+  .tier-title.ai {color:#6753e8;}
+  .bolt {position:absolute;width:9px;height:9px;background:#fff;border:1.3px solid var(--ink);border-radius:50%;z-index:6;}
+  /* The technology objects are volumetric isometric boxes made from three
+     independent polygon faces. The 8px edge is deliberately visible. */
+  .tech {all:unset;position:absolute;display:block;width:55px;height:78px;background:transparent;z-index:12;cursor:pointer;pointer-events:auto;transition:filter .22s ease,translate .25s ease;}
+  .tech .face {position:absolute;inset:0;pointer-events:none;}
+  .tech:hover,.tech:focus-visible {translate:0 -11px;filter:drop-shadow(0 8px 2px rgba(43,47,106,.14));outline:none;}
+  .tech:focus-visible {filter:drop-shadow(0 0 3px #6d50dc);}
+  .mark {position:absolute;left:17px;top:29px;z-index:2;display:flex;align-items:center;justify-content:center;width:30px;height:32px;line-height:1;letter-spacing:-1.2px;font-family:Arial,Helvetica,sans-serif;font-weight:900;font-size:20px;color:var(--accent, #297ed3);text-align:center;transform:skewY(-30deg);pointer-events:none;}
+  .mark.small {font-size:14px;letter-spacing:-1.7px;}
+  .mark.js {background:#f6dd1b;color:#222044;width:31px;height:31px;align-items:end;justify-content:end;padding:0 3px 3px 0;font-size:17px;}
+  .mark.ts {background:#317ac3;color:white;width:31px;height:31px;align-items:end;justify-content:end;padding:0 3px 3px 0;font-size:16px;}
+  .mark.html {background:#e65328;color:white;width:27px;height:35px;clip-path:polygon(0 0,100% 0,92% 83%,50% 100%,8% 83%);font-size:27px;}
+  .mark.swift {background:#ea5540;color:white;width:31px;height:31px;border-radius:5px;font-size:27px;}
+  .mark.dart {width:29px;height:29px;background:#1377c8;color:#fff;clip-path:polygon(20% 0%,80% 0%,100% 29%,100% 77%,47% 100%,0% 74%,0% 26%);font-size:20px;}
+  .mark.php {color:#fff;background:#777ab9;border-radius:50%;width:35px;height:21px;font-size:14px;font-style:italic;letter-spacing:-1.8px;}
+  .mark.ruby {color:#d91437;font-size:33px;}
+  .mark.elixir {color:#5b3575;font-size:32px;}
+  .mark.laravel {color:#f26438;font-size:31px;}
+  .mark.flutter {color:#0964b1;font-size:33px;}
+  .mark.python {color:#2877b5;font-size:22px;}
+  .mark.pg {color:#468bdb;font-size:22px;}
+  .mark.sqlite {color:#0d5770;font-size:28px;font-style:italic;}
+  .mark.elastic {color:#0e7793;font-size:29px;}
+  .mark.gh {font-size:29px;color:#18191e;}
+  .mark.aws {color:#2e244c;font-size:13px;flex-direction:column;gap:1px;letter-spacing:-.4px;}
+  .mark.aws b {font-size:18px;line-height:.8;}
+  .mark.docker {color:#2585d5;font-size:25px;}
+  .mark.mongo {color:#382263;font-size:31px;}
+  .mark.ocean {color:#087ada;font-size:34px;}
+  .mark.star {color:white;background:transparent;width:32px;height:34px;font-size:33px;}
+  .mark.next{background:#111;color:#fff;border-radius:50%;width:30px;height:30px;font-family:Georgia,serif;font-size:21px;font-weight:700;letter-spacing:-2px;}
+  .mark.react{color:#1c94c2;font-size:30px;font-weight:400;}
+  .mark.tailwind{color:#1aa9c8;font-size:37px;font-weight:500;transform:skewY(-30deg) rotate(-8deg);}
+  .mark.rn{color:#1893c3;font-size:15px;border:2px solid #1893c3;border-radius:50%;width:30px;height:30px;letter-spacing:-1px;}
+  .mark.expo{color:#171717;font-size:27px;}
+  .mark.electron{color:#2b99a9;border:2px solid #2b99a9;border-radius:50%;width:30px;height:30px;font-size:18px;text-transform:lowercase;}
+  .mark.express{color:#171717;font-size:17px;font-style:italic;}
+  .mark.socket{color:#292929;border:2px solid #292929;border-radius:50%;width:30px;height:30px;font-size:17px;}
+  .mark.lambda{color:#f39a22;font-size:31px;font-family:Georgia,serif;font-weight:700;}
+  .mark.dynamo{color:#3479c7;font-size:10px;letter-spacing:-.8px;border:2px solid #3479c7;border-radius:4px;}
+  .mark.redis{background:#d82c20;color:#fff;width:29px;height:24px;transform:skewY(-30deg) rotate(-7deg);font-size:16px;}
+  .mark.s3{background:#e05b27;color:#fff;width:29px;height:29px;border-radius:4px;font-size:13px;}
+  .mark.cfn{background:#d9478f;color:#fff;width:29px;height:29px;border-radius:4px;font-size:11px;letter-spacing:-.5px;}
+  .mark.ec2{background:#e88820;color:#fff;width:29px;height:29px;border-radius:4px;font-size:10px;letter-spacing:-.8px;}
+  .mark.cloudflare{color:#f29a26;font-size:31px;}
+  .mark.n8n{color:#fff;font-size:15px;letter-spacing:-1px;}
+  .signal-square{position:absolute;left:0;top:0;width:8px;height:8px;background:#6b57e6;box-shadow:0 0 0 2px rgba(255,255,255,.7);z-index:4;will-change:transform;}
+  .mark.grid-dots {display:grid;grid-template-columns:repeat(4,4px);grid-template-rows:repeat(4,4px);gap:3px;align-content:center;justify-content:center;}
+  .mark.grid-dots i {display:block;width:3px;height:4px;border:1px solid #3188cc;border-radius:50%;}
+  .mark.flutter::before,.mark.flutter::after {content:"";position:absolute;background:#0b67bb;clip-path:polygon(48% 0%,100% 0%,33% 100%,0 100%);}
+  .mark.flutter::before{width:29px;height:26px;left:0;top:0;}
+  .mark.flutter::after{width:23px;height:17px;left:5px;bottom:0;background:#2a9de9;transform:rotate(90deg);}
+  .tech[data-active=true] {translate:0 -11px;filter:drop-shadow(0 7px 2px rgba(98,85,223,.24));}
+  .info {position:absolute;right:45px;bottom:29px;z-index:75;padding:13px 16px;background:rgba(255,255,255,.96);border:1px solid #d5d8ed;box-shadow:0 4px 18px rgba(35,43,88,.09);border-radius:11px;min-width:190px;display:none;}
+  .info.show {display:block;}
+  .info strong{display:block;color:#172050;font-size:14px;letter-spacing:.1px;}
+  .info small{display:block;color:#757b9e;margin-top:5px;letter-spacing:.6px;font-size:10px;text-transform:uppercase;}
+  .info button {position:absolute;top:5px;right:6px;background:none;border:0;color:#7f83a1;font-size:18px;cursor:pointer;}
+  .tip {position:absolute;left:0;top:0;z-index:90;pointer-events:none;white-space:nowrap;padding:7px 11px;border-radius:8px;background:#18204f;color:#fff;box-shadow:0 6px 18px rgba(24,32,79,.22);opacity:0;translate:-50% calc(-100% + 6px);transition:opacity .16s ease,translate .16s ease;}
+  .tip.show {opacity:1;translate:-50% -100%;}
+  .tip strong {display:block;font-size:13px;font-weight:700;letter-spacing:.1px;}
+  .tip small {display:block;margin-top:2px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#b9bce0;}
+  .tip:after {content:"";position:absolute;left:50%;bottom:-5px;width:10px;height:10px;background:#18204f;transform:translateX(-50%) rotate(45deg);}
+  .tier:not(.enter) {opacity:0;}
+  .restart {position:absolute;right:20px;top:19px;z-index:70;border:1px solid #d9dced;border-radius:7px;background:#ffffffd9;color:#454d76;padding:6px 10px;font:600 10px/1.4 Arial,sans-serif;letter-spacing:1px;cursor:pointer;transition:background .2s ease;}
+  .restart:hover{background:#efedff;}
+  .tier.enter {animation:rise .75s both cubic-bezier(.2,.72,.2,1);animation-delay:calc(var(--row) * 100ms);}
+  @keyframes rise {from{translate:0 32px;opacity:0;}to{translate:0 0;opacity:1;}}
+  @media (prefers-reduced-motion:reduce){.tier.enter{animation:none}.tech{transition:none}}
+  @media (max-width:650px){.stage-shell{min-width:320px}.viewport{min-height:initial}.restart{right:10px;top:10px}}
+</style>
+</head>
+<body>
+<main class="viewport" aria-label="Interactive isometric technology stack">
+  <div class="stage-shell" id="shell">
+    <div class="stage" id="stage">
+      <div class="shapes" id="shapes" aria-hidden="true"></div>
+      <div class="stacks" id="stacks"></div>
+      <button class="restart" id="restart" type="button" title="Replay the entrance animation">REPLAY ↺</button>
+      <div class="tip" id="tip" role="tooltip"><strong id="tip-name"></strong><small id="tip-tier"></small></div>
+      <aside class="info" id="info" aria-live="polite"><button type="button" id="close" aria-label="Close details">×</button><strong id="info-name"></strong><small id="info-tier"></small></aside>
+    </div>
+  </div>
+</main>
+<script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const ink='#18204f';
+  const tiers = [
+    {name:'INTERFACES WEB',x:217,y:403,logos:[
+      ['Next.js',547,193,'N','#111111','next'],['React',603,158,'⚛','#1890c8','react'],['TypeScript',659,125,'TS','#317ac3','ts'],['Tailwind CSS',716,91,'≈','#18a8c8','tailwind']]},
+    {name:'APPS MÓVILES / DESKTOP',x:308,y:456,logos:[
+      ['React Native',693,214,'RN','#1f9bd1','rn'],['Expo',750,180,'▲','#171717','expo'],['Electron',805,146,'e','#2d99a9','electron']]},
+    {name:'BACKEND',x:399,y:509,logos:[
+      ['Laravel',674,330,'L','#f26438','laravel'],['Express.js',730,296,'ex','#171717','express'],['Python',786,263,'Py','#2877b5','python'],['Socket.io',842,230,'S','#2c2c2c','socket'],['AWS Lambda',898,198,'λ','#f59b23','lambda']]},
+    {name:'DATOS Y ALMACENAMIENTO',x:490,y:562,logos:[
+      ['SQLite',821,368,'╱','#0d5770','sqlite'],['DynamoDB',876,335,'DDB','#3479c7','dynamo'],['Redis',931,303,'R','#d82c20','redis'],['Amazon S3',989,269,'S3','#e05b27','s3']]},
+    {name:'INFRAESTRUCTURA',x:580,y:615,logos:[
+      ['AWS',855,456,'AWS','#272045','aws'],['Docker',910,423,'D','#2486d8','docker'],['CloudFormation',968,390,'CF','#d9478f','cfn'],['Amazon EC2',1023,356,'EC2','#e88820','ec2'],['Cloudflare',1081,323,'☁','#f29a26','cloudflare']]},
+    {name:'IA Y AUTOMATIZACIÓN',x:671,y:668,logos:[
+      ['n8n',1169,366,'n8n','#ffffff','n8n']]}
+  ];
+  function point(x,y){return {x,y};}
+  function polygon(points){return 'polygon('+points.map(p=>p.x.toFixed(2)+'px '+p.y.toFixed(2)+'px').join(',')+')';}
+  function inset(points,d){
+    let area=0;for(let i=0;i<points.length;i++){const a=points[i],b=points[(i+1)%points.length];area+=a.x*b.y-b.x*a.y;}
+    const s=area>0?1:-1;
+    return points.map((v,i)=>{
+      const a=points[(i+points.length-1)%points.length],b=points[(i+1)%points.length];
+      const dx1=v.x-a.x,dy1=v.y-a.y,dx2=b.x-v.x,dy2=b.y-v.y;
+      const l1=Math.hypot(dx1,dy1),l2=Math.hypot(dx2,dy2);
+      const e1={x:dx1/l1,y:dy1/l1},e2={x:dx2/l2,y:dy2/l2};
+      const n1={x:-e1.y*s,y:e1.x*s},n2={x:-e2.y*s,y:e2.x*s};
+      const det=e1.x*e2.y-e1.y*e2.x;
+      const t= ((n2.x-n1.x)*d*e2.y - (n2.y-n1.y)*d*e2.x)/det;
+      return point(v.x+n1.x*d+e1.x*t,v.y+n1.y*d+e1.y*t);
+    });
+  }
+  function face(points,fill,thickness=1.5){
+    const el=document.createElement('div');el.className='face';
+    el.style.setProperty('--outer',polygon(points));el.style.setProperty('--inner',polygon(inset(points,thickness)));
+    el.style.setProperty('--face-color',fill);return el;
+  }
+  function route(points){
+    const steps=[],lengths=[0];let total=0;
+    for(let i=1;i<points.length;i++){
+      const a=points[i-1],b=points[i],length=Math.hypot(b[0]-a[0],b[1]-a[1]);
+      steps.push({a,b,length});total+=length;lengths.push(total);
+    }
+    return {length:total,at(distance){
+      const d=Math.min(Math.max(distance,0),total);
+      let i=0;while(i<steps.length-1&&d>lengths[i+1])i++;
+      const s=steps[i],t=(d-lengths[i])/(s.length||1);
+      return [s.a[0]+(s.b[0]-s.a[0])*t,s.a[1]+(s.b[1]-s.a[1])*t];
+    }};
+  }
+  const flows=[];
+  function flow(parent,points,{spacing=16,speed=27,kind='',shift=0}={}){
+    const path=route(points),count=Math.max(3,Math.ceil(path.length/spacing));
+    const dots=Array.from({length:count},(_,i)=>{
+      const el=document.createElement('i');el.className='flow-dot'+(kind?' '+kind:'')+(kind!=='branch'&&i%8===0?' bright':'');
+      parent.append(el);return el;
+    });
+    flows.push({path,dots,spacing:path.length/count,speed,shift});
+    return path;
+  }
+  function parcel(parent){
+    const el=document.createElement('div');el.className='parcel';
+    for(const [p,color] of [
+      [[[0,5],[9,0],[16,4],[7,9]],'#a99cff'],
+      [[[0,5],[7,9],[7,17],[0,13]],'#5c46c7'],
+      [[[7,9],[16,4],[16,12],[7,17]],'#6b57e2']
+    ]){
+      const side=document.createElement('i');side.className='facet';
+      const poly=p.map(v=>point(...v));side.style.setProperty('--poly',polygon(poly));
+      side.style.setProperty('--inside',polygon(inset(poly,1.1)));
+      side.style.setProperty('--color',color);el.append(side);
+    }
+    parent.append(el);return el;
+  }
+  function signalSquare(parent){const el=document.createElement('i');el.className='signal-square';parent.append(el);return el;}
+  function node(parent,x,y,dark=false){const div=document.createElement('div');div.className='node'+(dark?' dark':'');div.style.cssText=`left:${x}px;top:${y}px`;parent.append(div);}
+  function cube(parent,x,y){
+    const el=document.createElement('div');el.className='cube';el.style.cssText=`left:${x}px;top:${y}px`;
+    const f=[
+      {p:[[0,13],[25,0],[40,9],[15,23]],c:'top'},
+      {p:[[0,13],[15,23],[15,38],[0,28]],c:'side'},
+      {p:[[15,23],[40,9],[40,24],[15,38]],c:'front'}
+    ];
+    f.forEach(({p,c})=>{const d=document.createElement('div');d.className='facet '+c;const pp=p.map(v=>point(v[0],v[1]));d.style.setProperty('--poly',polygon(pp));d.style.setProperty('--inside',polygon(inset(pp,1.4)));el.append(d);});parent.append(el);
+  }
+  const deco=$('shapes');
+  // True 30° isometric axes in screen coordinates. Both the platform edges and
+  // the animated routes use the same projection, so nothing looks skewed or
+  // slightly crooked against the background grid.
+  const ISO=Math.tan(Math.PI/6), ACROSS=ISO, AWAY=ISO;
+  const across=(origin,x)=>origin[1]+(x-origin[0])*ACROSS;
+  const away=(origin,x)=>origin[1]-(x-origin[0])*AWAY;
+  const lowerStart=[118,452.5];
+  const lowerEnd=[672,across(lowerStart,672)];
+  const lowerRail=flow(deco,[lowerStart,lowerEnd],{spacing:16,speed:30});
+  // Feeders meet the main rail at their true geometric intersections while
+  // staying on the same ±30° axes as the tiers and background grid.
+  const tierFeeds=[[240,454],[331,506],[422,555],[514,609],[604,663],[698,717]];
+  const junctions=tierFeeds.map((start,i)=>{
+    const x=(start[1]+AWAY*start[0]-lowerStart[1]+ACROSS*lowerStart[0])/(ACROSS+AWAY);
+    const junction=[x,across(lowerStart,x)];
+    flow(deco,[start,junction],{spacing:12,speed:22,kind:'branch',shift:i*3});
+    return junction;
+  });
+  // All right-hand branches use exactly the same two projected axes. The
+  // upper-right link used to contain a near-vertical, perspective-breaking jog.
+  const topOrigin=[739,14],topTurn=[866,across(topOrigin,866)];
+  const topEnd=[815,away(topTurn,815)];
+  const topRoute=flow(deco,[topOrigin,topTurn,topEnd],{spacing:15,speed:25});
+  const rightOrigin=[940,277];
+  const rightTurnA=[1041,away(rightOrigin,1041)];
+  const rightTurnB=[1133,across(rightTurnA,1133)];
+  const rightEnd=[1232,away(rightTurnB,1232)];
+  const rightRoute=flow(deco,[rightOrigin,rightTurnA,rightTurnB,rightEnd],{spacing:15,speed:26});
+  const finalOrigin=[1247,399],finalCorner=[1296,away(finalOrigin,1296)];
+  const finalEnd=[1370,across(finalCorner,1370)];
+  const finalRoute=flow(deco,[finalOrigin,finalCorner,finalEnd],{spacing:15,speed:27});
+  // Put nodes on the paths rather than slightly beside them.
+  [[320,across(lowerStart,320)-4,false],
+    [834,away(topTurn,838)-4,true],
+    [1193,away(rightTurnB,1197)-4,true],
+    [1296,finalCorner[1]-4,false]].forEach(p=>node(deco,...p));
+  [[91,430],[720,-18],[1210,169],[1353,379],[655,741]].forEach(p=>cube(deco,...p));
+  const parcels=Array.from({length:4},()=>parcel(deco));
+  // Bright packets now travel on the right-hand routes too, matching the reference.
+  const rightSignals=[
+    {el:signalSquare(deco),path:topRoute,speed:48,shift:0},
+    {el:signalSquare(deco),path:rightRoute,speed:52,shift:31},
+    {el:signalSquare(deco),path:finalRoute,speed:56,shift:17}
+  ];
+  const stacks=$('stacks');
+  tiers.forEach((tier,row)=>{
+    const group=document.createElement('section');group.className='tier';group.style.setProperty('--row',row);
+    group.setAttribute('aria-label',tier.name);
+    const {x,y}=tier;const a=point(x,y), b=point(x+570,y-329),c=point(x+636,y-291),d=point(x+66,y+38),h=22;
+    group.append(face([a,d,point(d.x,d.y+h),point(a.x,a.y+h)],row===5?'#ebe9ff':'#eef0ff'));
+    group.append(face([d,c,point(c.x,c.y+h),point(d.x,d.y+h)],row===5?'#efedff':'#fbfbff'));
+    group.append(face([a,b,c,d],row===5?'#f8f6ff':'#fff'));
+    const title=document.createElement('div');title.className='tier-title'+(row===5?' ai':'');title.textContent=tier.name;title.style.cssText=`left:${x+52}px;top:${y+4}px`;group.append(title);
+    for(const [px,py] of [[x+18,y+27],[x+38,y+38]]){const dot=document.createElement('i');dot.className='bolt';dot.style.cssText=`left:${px}px;top:${py}px`;group.append(dot);}
+    tier.logos.forEach(([name,cx,cy,glyph,accent,cls],col)=>{
+      const card=document.createElement('button');card.className='tech'+(cls==='n8n'?' star-card':'');card.type='button';card.title=`${name} · ${tier.name}`;
+      card.style.cssText=`left:${cx-8}px;top:${cy-31}px;--accent:${accent};`;
+      card.setAttribute('aria-label',`${name}, ${tier.name}`);
+      const top=face([point(0,25),point(45,0),point(53,6),point(8,31)],cls==='n8n'?'#8577f8':'#fbfbff',1.55);
+      const edge=face([point(0,25),point(8,31),point(8,76),point(0,70)],cls==='n8n'?'#5142bb':'#e9ebfc',1.55);
+      const front=face([point(8,31),point(53,6),point(53,51),point(8,76)],cls==='n8n'?'#6556db':'#fff',1.65);
+      card.append(top,edge,front);
+      const mark=document.createElement('span');mark.className='mark '+cls;mark.setAttribute('aria-hidden','true');
+      if(cls==='grid-dots'){for(let i=0;i<16;i++)mark.append(document.createElement('i'));}
+      else if(cls==='aws'){mark.innerHTML='<span>AWS</span><b>⌣</b>';}
+      else mark.textContent=glyph;
+      card.append(mark);
+      const showTip=()=>{$('tip-name').textContent=name;$('tip-tier').textContent=tier.name;$('tip').style.cssText=`left:${cx+19}px;top:${cy-48}px`;$('tip').classList.add('show');};
+      const hideTip=()=>$('tip').classList.remove('show');
+      card.addEventListener('mouseenter',showTip);card.addEventListener('focus',showTip);
+      card.addEventListener('mouseleave',hideTip);card.addEventListener('blur',hideTip);
+      card.addEventListener('click',()=>{document.querySelectorAll('.tech[data-active=true]').forEach(el=>el.removeAttribute('data-active'));card.dataset.active='true';$('info-name').textContent=name;$('info-tier').textContent=tier.name;$('info').classList.add('show');});
+      group.append(card);
+    });
+    stacks.append(group);
+  });
+  $('close').addEventListener('click',()=>{$('info').classList.remove('show');document.querySelectorAll('.tech[data-active=true]').forEach(el=>el.removeAttribute('data-active'));});
+  const playEntrance=()=>{document.querySelectorAll('.tier').forEach(el=>{el.classList.remove('enter');void el.offsetWidth;el.classList.add('enter');});};
+  $('restart').addEventListener('click',playEntrance);
+  if('IntersectionObserver' in window){
+    const entranceObserver=new IntersectionObserver(entries=>{
+      if(entries.some(entry=>entry.isIntersecting)){playEntrance();entranceObserver.disconnect();}
+    },{threshold:.5});
+    entranceObserver.observe($('shell'));
+  }else playEntrance();
+  // One animation clock makes every stream and package move continuously.
+  // Positions are computed along HTML/CSS-only paths, not drawn on canvas.
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
+  let last=0,elapsed=0;
+  function tick(timestamp){
+    if(!last)last=timestamp;
+    if(!reduced.matches)elapsed+=Math.min(timestamp-last,65)/1000;
+    last=timestamp;
+    for(const {path,dots,spacing,speed,shift} of flows){
+      for(let i=0;i<dots.length;i++){
+        const at=(i*spacing+elapsed*speed+shift)%path.length;
+        const [x,y]=path.at(at);
+        dots[i].style.transform=`translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0)`;
+      }
+    }
+    parcels.forEach((el,i)=>{
+      const pos=(elapsed*62+i*lowerRail.length/parcels.length)%lowerRail.length;
+      const [x,y]=lowerRail.at(pos);el.style.opacity=1;
+      el.style.transform=`translate3d(${(x-8).toFixed(1)}px,${(y-10).toFixed(1)}px,0)`;
+    });
+    rightSignals.forEach(({el,path,speed,shift})=>{
+      const pos=(elapsed*speed+shift)%path.length;
+      const [x,y]=path.at(pos);
+      el.style.transform=`translate3d(${(x-4).toFixed(1)}px,${(y-4).toFixed(1)}px,0)`;
+    });
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+  const fit=()=>{let box=$('shell').getBoundingClientRect();$('stage').style.setProperty('--stage-scale',Math.min(box.width/1486,box.height/781).toString());};
+  if('ResizeObserver' in window)new ResizeObserver(fit).observe($('shell'));
+  window.addEventListener('resize',fit,{passive:true});fit();
+})();
+</script>
+</body>
+</html>
