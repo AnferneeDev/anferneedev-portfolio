@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -e
+export AWS_PAGER=""
 
 echo "--------------------------------------------------------"
 echo "PHASE 1: BACKEND STACK (API & DB)"

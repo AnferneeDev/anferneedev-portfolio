@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -e
+export AWS_PAGER=""
 
 echo "--------------------------------------------------------"
 echo "PHASE 2: CLOUDFRONT STACK (CDN & EDGE DELIVERY)"
@@ -30,7 +31,7 @@ fi
 echo "HOSTED ZONE ID: $HOSTED_ZONE_ID"
 
 echo "FETCHING ACM CERTIFICATE ARN FOR $DOMAIN..."
-CERT_ARN=$(aws acm list-certificates --region "$REGION" --query "CertificateSummaryList[?DomainName=='$DOMAIN'].CertificateArn" --output text)
+CERT_ARN=$(aws acm list-certificates --certificate-statuses ISSUED --region "$REGION" --query "CertificateSummaryList[?DomainName=='$DOMAIN'] | [0].CertificateArn" --output text)
 
 if [ -z "$CERT_ARN" ] || [ "$CERT_ARN" == "None" ]; then
     echo "ERROR: Could not find an ACM certificate for $DOMAIN in $REGION"
